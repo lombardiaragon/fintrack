@@ -1,15 +1,8 @@
 import { Link } from "react-router-dom";
 import { formatCurrency } from "../../utils/format";
-
-const STATUS_MAP = {
-  active: { label: "Actif", bg: "#ECFDF5", color: "#059669" },
-  late: { label: "En retard", bg: "#FEF2F2", color: "#DC2626" },
-  paid: { label: "Soldé", bg: "#EFF6FF", color: "#2563EB" },
-};
+import StatusBadge from "../../components/StatusBadge";
 
 export default function CreditItem({ credit }) {
-  const s = STATUS_MAP[credit.status] || STATUS_MAP.active;
-
   const paidCount = credit.schedule?.filter((r) => r.paid).length ?? 0;
   const totalCount = credit.schedule?.length ?? 0;
   const pct = totalCount ? Math.round((paidCount / totalCount) * 100) : 0;
@@ -21,18 +14,7 @@ export default function CreditItem({ credit }) {
           <p className="font-mono text-sm font-medium text-gray-900">
             {formatCurrency(credit.principal)}
           </p>
-          <span
-            style={{
-              background: s.bg,
-              color: s.color,
-              fontSize: 11,
-              fontWeight: 600,
-              padding: "2px 8px",
-              borderRadius: 99,
-            }}
-          >
-            {s.label}
-          </span>
+          <StatusBadge status={credit.status} />
         </div>
         <p className="mb-2 text-xs text-gray-400">
           {credit.annualRate}% · {credit.months} mois ·{" "}

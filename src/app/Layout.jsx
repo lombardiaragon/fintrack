@@ -1,6 +1,5 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/useAuth";
-import { useNavigate } from "react-router-dom";
 
 const navItems = [
   {

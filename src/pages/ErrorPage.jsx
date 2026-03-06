@@ -10,12 +10,12 @@ export default function ErrorPage() {
       <p className="text-xs text-gray-300 mb-6 font-mono">
         {error?.statusText || error?.message || "Erreur inconnue"}
       </p>
-      <a
+      <Link
         to="/dashboard"
-        className="text-sm font-medium text-white bg-gray-900 hover:bg-gray-700 rounded-xl px-4 py-2 transition"
+        className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700"
       >
         Retour au dashboard
-      </a>
+      </Link>
     </div>
   );
 }

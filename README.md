@@ -1,17 +1,101 @@
-# React + Vite
+# Fintrak
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A credit and client management web application built with React and a local REST API.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Authentication** — sign-up and login with JWT (json-server-auth)
+- **Client management** — add, search, and view client profiles
+- **Credit management** — create credits with automatic amortization schedule generation (French system)
+- **Installment payments** — real-time tracking of paid installments
+- **Early repayment simulation** — recalculates the schedule with reduced balance while keeping the original installment
+- **Dashboard** — global metrics, credit distribution chart, and debt evolution over time
 
-## React Compiler
+## Tech stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Layer | Technology |
+|-------|------------|
+| UI | React 19, Tailwind CSS v4 |
+| Routing | React Router v7 |
+| Charts | Recharts |
+| API | json-server + json-server-auth |
+| Build | Vite |
 
-## Expanding the ESLint configuration
+## Requirements
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# fintrack
+- Node.js 18+
+- npm
+
+## Installation
+
+```bash
+npm install
+```
+
+## Running the app
+
+Start the API server and the frontend together:
+
+```bash
+npm run dev:full
+```
+
+Or separately:
+
+```bash
+# API (port 3001)
+npm run server
+
+# Frontend (port 5173)
+npm run dev
+```
+
+## Project structure
+
+```
+src/
+├── app/              # Router, Layout, PrivateRoute
+├── features/
+│   ├── auth/         # Auth context and hook
+│   ├── clients/      # Client pages and context
+│   └── credits/      # Credit pages and context
+├── hooks/            # useFetch, usePagination
+├── pages/            # Dashboard, Login, NotFound, ErrorPage
+└── utils/            # Financial calculations, avatar helpers, formatting
+```
+
+## Deployment
+
+The app is split into two services:
+
+| Service | Platform | What it runs |
+|---------|----------|--------------|
+| Frontend | Netlify | React SPA (Vite build) |
+| Backend | Render | json-server REST API |
+
+### Frontend (Netlify)
+
+1. Push the repo to GitHub.
+2. Connect the repo to Netlify and set the build settings:
+   - **Build command:** `npm run build`
+   - **Publish directory:** `dist`
+3. Add the environment variable in Netlify → Site settings → Environment variables:
+   - `VITE_API_URL` = your Render service URL (e.g. `https://fintrak-api.onrender.com`)
+4. `netlify.toml` handles SPA routing automatically.
+
+### Backend (Render)
+
+1. Create a new **Web Service** on Render pointing to the repo.
+2. Set the settings:
+   - **Build command:** `npm install`
+   - **Start command:** `node server/server.cjs`
+3. Add the environment variable in Render → Environment:
+   - `CLIENT_ORIGIN` = your Netlify URL (e.g. `https://fintrak.netlify.app`)
+
+## Financial engine
+
+Amortization logic lives in `src/utils/loanCalculations.js`:
+
+- `generateAmortizationSchedule(principal, annualRate, months)` — generates a full schedule
+- `applyEarlyPayment(schedule, amount, monthNumber, annualRate)` — simulates an early repayment
+- `payNextInstallment(schedule)` — marks the next unpaid installment as paid

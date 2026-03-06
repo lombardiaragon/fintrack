@@ -1,71 +1,12 @@
+import { Link } from "react-router-dom";
 import { useClients } from "../features/clients/useClients";
 import { useCredits } from "../features/credits/useCredits";
-import {
-  clientsCalculations,
-  calcCreditsByStatus,
-  calcDebtEvolution,
-} from "../utils/clientsCalculations";
+import { clientsCalculations } from "../utils/clientsCalculations";
 import { formatCurrency } from "../utils/format";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-} from "recharts";
-
-import { Link } from "react-router-dom";
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-const AVATAR_COLORS = [
-  "#6366F1",
-  "#F59E0B",
-  "#10B981",
-  "#EC4899",
-  "#8B5CF6",
-  "#3B82F6",
-  "#EF4444",
-  "#14B8A6",
-];
-function avatarColor(name) {
-  return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
-}
-function initials(name) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-function StatusBadge({ status }) {
-  const map = {
-    active: { label: "Actif", bg: "#ECFDF5", color: "#059669" },
-    late: { label: "En retard", bg: "#FEF2F2", color: "#DC2626" },
-    paid: { label: "Soldé", bg: "#EFF6FF", color: "#2563EB" },
-  };
-  const s = map[status] || map.active;
-  return (
-    <span
-      style={{
-        background: s.bg,
-        color: s.color,
-        fontSize: 11,
-        fontWeight: 600,
-        padding: "3px 8px",
-        borderRadius: 99,
-      }}
-    >
-      {s.label}
-    </span>
-  );
-}
+import { avatarColor, initials } from "../utils/avatar";
+import StatusBadge from "../components/StatusBadge";
+import CreditStatusChart from "../features/credits/CreditStatusChart";
+import DebtEvolutionChart from "../features/credits/DebtEvolutionChart";
 
 function MetricCard({ label, value, sub, progress }) {
   return (
@@ -92,7 +33,6 @@ function MetricCard({ label, value, sub, progress }) {
   );
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const { clients } = useClients();
   const { credits } = useCredits();
@@ -111,7 +51,6 @@ export default function Dashboard() {
 
   return (
     <div>
-      {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
@@ -131,16 +70,15 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      {/* Metrics */}
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <MetricCard
           label="Dette totale"
-          value={`${formatCurrency(metrics.totalDebt)} `}
+          value={formatCurrency(metrics.totalDebt)}
           sub="Tous crédits confondus"
         />
         <MetricCard
           label="Intérêts"
-          value={`${formatCurrency(metrics.totalInterests)} `}
+          value={formatCurrency(metrics.totalInterests)}
           sub="Intérêts restants"
         />
         <MetricCard label="Clients" value={clients.length} progress={100} />
@@ -151,9 +89,7 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Table + right panel */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {/* Clients table */}
         <div className="col-span-2 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           <div className="flex items-center justify-between px-6 pt-6 pb-4">
             <h2 className="text-sm font-semibold text-gray-900">
@@ -223,7 +159,6 @@ export default function Dashboard() {
                     <td className="hidden px-6 py-4 text-sm text-gray-400 sm:table-cell">
                       {client.email}
                     </td>
-
                     <td className="px-6 py-4">
                       <StatusBadge status="active" />
                     </td>
@@ -234,9 +169,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Right panel */}
         <div className="flex flex-col gap-4">
-          {/* Recent credits */}
           <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-900">
@@ -285,7 +218,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Distribution */}
           <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-sm font-semibold text-gray-900">
               Répartition
@@ -340,114 +272,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Charts — full width row */}
       <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-        {/* Pie — distribution par status */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold text-gray-900">
-            Répartition des crédits
-          </h2>
-          {credits.length === 0 ? (
-            <p className="py-8 text-center text-xs text-gray-400">
-              Aucun crédit
-            </p>
-          ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={calcCreditsByStatus(credits)}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
-                  paddingAngle={3}
-                  dataKey="value"
-                >
-                  {calcCreditsByStatus(credits).map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value, name) => [
-                    `${value} crédit${value > 1 ? "s" : ""}`,
-                    name,
-                  ]}
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "1px solid #F3F4F6",
-                    fontSize: 12,
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-          {/* Leyenda manual */}
-          <div className="mt-2 flex justify-center gap-4">
-            {calcCreditsByStatus(credits).map((entry, i) => (
-              <div key={i} className="flex items-center gap-1.5">
-                <div
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{ background: entry.color }}
-                />
-                <span className="text-xs text-gray-500">
-                  {entry.name} ({entry.value})
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Line — évolution de la dette */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold text-gray-900">
-            Évolution de la dette
-          </h2>
-          {credits.length === 0 ? (
-            <p className="py-8 text-center text-xs text-gray-400">
-              Aucun crédit
-            </p>
-          ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart
-                data={calcDebtEvolution(credits)}
-                margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 10, fill: "#9CA3AF" }}
-                  tickLine={false}
-                  interval={9}
-                />
-                <YAxis
-                  tick={{ fontSize: 10, fill: "#9CA3AF" }}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-                />
-                <Tooltip
-                  formatter={(v) => [
-                    `${v.toLocaleString("fr-FR")} €`,
-                    "Dette totale",
-                  ]}
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "1px solid #F3F4F6",
-                    fontSize: 12,
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="debt"
-                  stroke="#111827"
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div>
+        <CreditStatusChart credits={credits} />
+        <DebtEvolutionChart credits={credits} />
       </div>
     </div>
   );

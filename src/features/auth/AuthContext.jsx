@@ -3,7 +3,7 @@ import { createContext, useState } from "react";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser]   = useState(() => {
+  const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   function login(userData, accessToken) {
     setUser(userData);
     setToken(accessToken);
-    localStorage.setItem("user",  JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", accessToken);
   }
 

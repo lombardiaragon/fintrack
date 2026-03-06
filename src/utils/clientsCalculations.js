@@ -7,19 +7,14 @@ export function clientsCalculations() {
     return schedule.reduce((acc, row) => acc + row.interestPaid, 0);
   }
 
-  function calcTotalClientDebt(activeCredits) {
-    return activeCredits.reduce((acc, credit) => {
-      return acc + calcTotalCreditDebt(credit.schedule);
-    }, 0);
+  function calcTotalClientDebt(credits) {
+    return credits.reduce((acc, credit) => acc + calcTotalCreditDebt(credit.schedule), 0);
   }
 
-  function calcTotalClientInterests(activeCredits) {
-    return activeCredits.reduce((acc, credit) => {
-      return acc + calcTotalCreditInterests(credit.schedule);
-    }, 0);
+  function calcTotalClientInterests(credits) {
+    return credits.reduce((acc, credit) => acc + calcTotalCreditInterests(credit.schedule), 0);
   }
 
-  // ── nuevo ──────────────────────────────────────────────
   function calcDashboardMetrics(credits) {
     return {
       totalDebt: calcTotalClientDebt(credits),
@@ -38,11 +33,6 @@ export function clientsCalculations() {
   };
 }
 
-/**
- * Returns data for pie chart — credits grouped by status
- * @param {Array} credits
- * @returns {Array} [{name, value, color}]
- */
 export function calcCreditsByStatus(credits) {
   const groups = { active: 0, late: 0, paid: 0 };
   credits.forEach((c) => {
@@ -55,18 +45,13 @@ export function calcCreditsByStatus(credits) {
   ].filter((d) => d.value > 0);
 }
 
-/**
- * Returns data for line chart — total debt per credit over months
- * @param {Array} credits
- * @returns {Array} [{month, debt}]
- */
 export function calcDebtEvolution(credits) {
   const activeCredits = credits.filter((c) => c.status !== "paid");
   if (activeCredits.length === 0) return [];
 
   const maxMonths = Math.min(
     Math.max(...activeCredits.map((c) => c.months)),
-    60, // limitamos a 60 meses para el gráfico
+    60,
   );
 
   return Array.from({ length: maxMonths }, (_, i) => {

@@ -1,36 +1,15 @@
-// utils/loanCalculations.js
-
-/**
- * Convierte tasa anual nominal (%) a tasa mensual decimal
- * @param {number} annualRate - tasa anual en %
- * @returns {number} tasa mensual decimal
- */
 export function calculateMonthlyRate(annualRate) {
   return annualRate / 12 / 100;
 }
 
-/**
- * Calcula la cuota mensual fija usando sistema francés
- * @param {number} principal - capital inicial
- * @param {number} annualRate - tasa anual en %
- * @param {number} months - cantidad de cuotas
- * @returns {number} cuota mensual
- */
 export function calculateInstallment(principal, annualRate, months) {
   const r = calculateMonthlyRate(annualRate);
-  if (r === 0) return principal / months; // caso tasa 0%
+  if (r === 0) return principal / months;
   const numerator = principal * r * Math.pow(1 + r, months);
   const denominator = Math.pow(1 + r, months) - 1;
   return parseFloat((numerator / denominator).toFixed(2));
 }
 
-/**
- * Genera tabla de amortización completa
- * @param {number} principal
- * @param {number} annualRate
- * @param {number} months
- * @returns {Array} arreglo de cuotas con {month, principalPaid, interestPaid, balance, annualRate}
- */
 export function generateAmortizationSchedule(principal, annualRate, months) {
   let schedule = [];
   let balance = principal;
@@ -42,27 +21,22 @@ export function generateAmortizationSchedule(principal, annualRate, months) {
     const principalPaid = parseFloat((installment - interestPaid).toFixed(2));
     balance = parseFloat((balance - principalPaid).toFixed(2));
 
-    const newEntry = {
-      month,
-      installment,
-      principalPaid,
-      interestPaid,
-      balance: balance < 0 ? 0 : balance,
-      paid: false, 
-    };
-
-    schedule = [...schedule, newEntry]; // versión inmutable
+    schedule = [
+      ...schedule,
+      {
+        month,
+        installment,
+        principalPaid,
+        interestPaid,
+        balance: balance < 0 ? 0 : balance,
+        paid: false,
+      },
+    ];
   }
 
   return schedule;
 }
-/**
- * Genera schedule a partir de un balance inicial con cuota fija
- * @param {number} balance - saldo inicial
- * @param {number} annualRate - tasa anual
- * @param {number} installment - cuota mensual fija
- * @returns {Array} arreglo de cuotas hasta balance = 0
- */
+
 export function generateScheduleWithFixedInstallment(
   balance,
   annualRate,
@@ -76,7 +50,7 @@ export function generateScheduleWithFixedInstallment(
     const interestPaid = parseFloat((balance * monthlyRate).toFixed(2));
     let principalPaid = parseFloat((installment - interestPaid).toFixed(2));
 
-    if (principalPaid > balance) principalPaid = balance; // último mes
+    if (principalPaid > balance) principalPaid = balance;
     balance = parseFloat((balance - principalPaid).toFixed(2));
 
     schedule.push({
@@ -112,9 +86,10 @@ export function validateEarlyPaymentInput(amountInput, monthInput) {
   if (month <= 0 || !Number.isInteger(month)) {
     throw new Error("Le mois doit être un entier positif");
   }
-  console.log(month);
+
   return { amount, month };
 }
+
 export function applyEarlyPayment(schedule, amount, monthNumber, annualRate) {
   const currentBalance = schedule[monthNumber - 1].balance;
 
@@ -122,33 +97,21 @@ export function applyEarlyPayment(schedule, amount, monthNumber, annualRate) {
     throw new Error("Le paiement anticipé minimum est de 3 000 €");
   if (amount > currentBalance)
     throw new Error(
-      `Le paiement anticipé est trop élevé. Solde restant: ${currentBalance.toFixed(2)}€`,
+      `Le paiement anticipé est trop élevé. Solde restant : ${currentBalance.toFixed(2)} €`,
     );
 
   let newBalance = currentBalance - amount;
+  if (newBalance < 0) newBalance = 0;
+  if (newBalance === 0) return [];
 
-  if (newBalance < 0) {
-    newBalance = 0;
-  }
-  if (newBalance === 0) return []; //credito cancelado
+  const installment = schedule[0].installment;
 
-  const installment = schedule[0].installment; // cuota fija original
-
-  return generateScheduleWithFixedInstallment(
-    newBalance,
-    annualRate,
-    installment,
-  );
+  return generateScheduleWithFixedInstallment(newBalance, annualRate, installment);
 }
 
-/**
- * Marks the next unpaid installment as paid
- * @param {Array} schedule
- * @returns {Array} updated schedule
- */
 export function payNextInstallment(schedule) {
   const nextUnpaid = schedule.findIndex((row) => !row.paid);
-  if (nextUnpaid === -1) return schedule; // all paid
+  if (nextUnpaid === -1) return schedule;
   return schedule.map((row, i) =>
     i === nextUnpaid ? { ...row, paid: true } : row,
   );

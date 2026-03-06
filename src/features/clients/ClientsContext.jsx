@@ -4,7 +4,7 @@ import { useFetch } from "../../hooks/useFetch";
 const ClientsContext = createContext();
 
 function ClientsProvider({ children }) {
-  const { data: clients, loading, error, post, refetch } = useFetch("/clients");//sumar put para update
+  const { data: clients, loading, error, post, refetch } = useFetch("/clients");
 
   const addClient = useCallback(
     async (client) => {

@@ -14,7 +14,6 @@ import ErrorPage from "../pages/ErrorPage";
 import { AuthProvider } from "../features/auth/AuthContext";
 import PrivateRoute from "./PrivateRoute";
 
-
 const router = createBrowserRouter([
   {
     path: "/login",

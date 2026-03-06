@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../features/auth/useAuth";
 
-const BASE_URL = "http://localhost:3001";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export function useFetch(endpoint) {
   const { token } = useAuth();

@@ -31,9 +31,10 @@ export default function Login() {
 
     setLoading(true);
     try {
+      const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
       const endpoint = isRegister
-        ? "http://localhost:3001/register"
-        : "http://localhost:3001/login";
+        ? `${BASE_URL}/register`
+        : `${BASE_URL}/login`;
 
       const res = await fetch(endpoint, {
         method: "POST",

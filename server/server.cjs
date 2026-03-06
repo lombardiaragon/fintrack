@@ -15,8 +15,13 @@ const rules = auth.rewriter({
 
 app.db = router.db;
 
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  process.env.CLIENT_ORIGIN,
+].filter(Boolean);
+
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: ALLOWED_ORIGINS,
   allowedHeaders: ["Authorization", "Content-Type"],
 }));
 

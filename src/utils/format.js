@@ -4,6 +4,7 @@ export function formatCurrency(amount) {
     currency: "EUR",
   }).format(amount);
 }
+
 export function formatDateTime(dateString) {
   return new Intl.DateTimeFormat("fr-FR", {
     day: "2-digit",
