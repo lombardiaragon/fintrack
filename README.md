@@ -112,7 +112,3 @@ Amortization logic lives in `src/utils/loanCalculations.js`:
 - `applyEarlyPayment(schedule, amount, monthNumber, annualRate)` — simulates an early repayment
 - `payNextInstallment(schedule)` — marks the next unpaid installment as paid
 ```
-
-Guardalo como `README.md` en la raíz, creá la carpeta `docs/` con un screenshot del dashboard y committeás todo junto:
-```
-docs: add README and dashboard screenshot
