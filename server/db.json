@@ -11,36 +11,36 @@
       "id": "c1",
       "name": "Marie Laurent",
       "email": "marie@email.fr",
-      "phone": "06 12 34 56 78",
+      "phone": "0612345678",
       "createdAt": "2025-10-01T10:00:00Z"
     },
     {
       "id": "c2",
       "name": "Pierre Renard",
       "email": "p.renard@mail.fr",
-      "phone": "06 98 76 54 32",
+      "phone": "0698765432",
       "createdAt": "2025-11-15T09:00:00Z"
     },
     {
       "id": "c3",
       "name": "Sophie Dubois",
       "email": "s.dubois@gmail.com",
-      "phone": "07 11 22 33 44",
+      "phone": "0711223344",
       "createdAt": "2025-12-01T08:30:00Z"
     },
     {
       "id": "c4",
       "name": "Thomas Martin",
       "email": "t.martin@pro.fr",
-      "phone": "06 55 44 33 22",
+      "phone": "0655443322",
       "createdAt": "2026-01-10T11:00:00Z"
     },
     {
       "id": "d995b95c-9de9-4626-81e3-80e6823400ce",
       "userId": 1,
-      "name": "Federico Lombardi",
+      "name": "Fabricio Hernandez",
       "email": "flombardi.dev@gmail.com",
-      "phone": "0777423994",
+      "phone": "0742345678",
       "createdAt": "2026-03-04T11:32:55.471Z"
     }
   ],
